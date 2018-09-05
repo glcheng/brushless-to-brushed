@@ -6,8 +6,7 @@
  */ 
 
 
-#define F_CPU 16000000UL // 16MHz
-
+#include "hkf80a.h"
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <stdint.h>
@@ -15,19 +14,18 @@
 #include <avr/interrupt.h>
 #include <math.h>
 #include <avr/eeprom.h>
-#include "hkf80a.h"
 
 
-#define FORWARD_LOW  LOW_A
+#define FORWARD_LOW  LOW_A_PIN
 #define FORWARD_LOW_PORT   LOW_A_PORT
 
-#define FORWARD_HIGH HIGH_C
+#define FORWARD_HIGH HIGH_C_PIN
 #define FORWARD_HIGH_PORT  HIGH_C_PORT
 
-#define BACKWARD_LOW  LOW_C
+#define BACKWARD_LOW  LOW_C_PIN
 #define BACKWARD_LOW_PORT  LOW_C_PORT
 
-#define BACKWARD_HIGH HIGH_A
+#define BACKWARD_HIGH HIGH_A_PIN
 #define BACKWARD_HIGH_PORT HIGH_A_PORT
 
 //Define RC States
@@ -38,10 +36,12 @@
 
 void setupPwmOutput();
 void setupRcInput();
-	
+
 void goForwards();
 void goBackwards();
 void brake();
+
+void motorBeep(uint8_t length);
 
 inline void enableForwardHigh();
 inline void disableForwardHigh();
@@ -51,8 +51,6 @@ inline void enableBackwardHigh();
 inline void disableBackwardHigh();
 inline void enableBackwardLow();
 inline void disableBackwardLow();
-
-void motorBeep(uint8_t length);
 
 
 volatile uint8_t state = UNINITIALIZED;
@@ -274,6 +272,24 @@ void brake() {
 }
 
 
+void motorBeep(uint8_t length) {
+	OCR2 = 10;
+	
+	for (uint8_t i = 0; i < length; i++) {
+		if (i % 2) {
+			goForwards();
+		} else {
+			goBackwards();
+		}
+		_delay_ms(200);
+		brake();
+		_delay_ms(300);
+	}
+	
+	OCR2 = 0;
+}
+
+
 inline void enableForwardHigh() {
 	FORWARD_HIGH_PORT |= (1 << FORWARD_HIGH);
 }
@@ -311,22 +327,4 @@ inline void enableBackwardLow() {
 
 inline void disableBackwardLow() {
 	BACKWARD_LOW_PORT &= ~(1 << BACKWARD_LOW);
-}
-
-
-void motorBeep(uint8_t length) {
-	OCR2 = 10;
-	
-	for (uint8_t i = 0; i < length; i++) {
-		if (i % 2) {
-			goForwards();
-		} else {
-			goBackwards();
-		}
-		_delay_ms(200);
-		brake();
-		_delay_ms(300);
-	}
-	
-	OCR2 = 0;
 }
