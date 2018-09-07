@@ -28,12 +28,17 @@
 #define BACKWARD_HIGH HIGH_A_PIN
 #define BACKWARD_HIGH_PORT HIGH_A_PORT
 
-//Define RC States
-#define UNINITIALIZED 0
-#define FORWARD 1
-#define BACKWARD 2
-#define BRAKE 3
 
+//Define RC States
+enum STATE {
+    UNINITIALIZED = 0,
+    FORWARD = 1,
+    BACKWARD = 2,
+    BRAKE = 3	
+};
+
+
+void setupMotorOutput();
 void setupPwmOutput();
 void setupRcInput();
 
@@ -112,12 +117,12 @@ int main(void) {
 
 void setupMotorOutput() {
     // Set A pins as outputs.
-    SET_HIGH_A_PORT |= (1 << HIGH_A);
-    SET_LOW_A_PORT |= (1 << LOW_A);
+    SET_HIGH_A_PORT |= (1 << HIGH_A_PIN);
+    SET_LOW_A_PORT |= (1 << LOW_A_PIN);
 
     // Set C pins as outputs.
-    SET_HIGH_C_PORT |= (1 << HIGH_C);
-    SET_LOW_C_PORT |= (1 << LOW_C);
+    SET_HIGH_C_PORT |= (1 << HIGH_C_PIN);
+    SET_LOW_C_PORT |= (1 << LOW_C_PIN);
 }
 
 
